@@ -117,20 +117,17 @@ var activateMap = function () {
   pinListElement.appendChild(fragment);
 };
 
-// вызов функции активации карты при клике на главную метку
-mainPin.addEventListener('click', function () {
-  activateMap();
-});
-
 // получение поля адреса
 var addres = document.querySelector('#address');
 
 // создание координат главной метки
-var mainPinX = mainPin.offsetLeft;
-var mainPinY = mainPin.offsetTop;
+var startCoordsMainPin = {
+  x: mainPin.offsetLeft,
+  y: mainPin.offsetTop
+};
 
 // запись в поле адреса
-addres.value = mainPinX + ',' + mainPinY;
+addres.value = startCoordsMainPin.x + ',' + startCoordsMainPin.y;
 
 // функция записи координат главной метки в поле адреса
 var getCoordMainPin = function (x, y) {
@@ -139,7 +136,7 @@ var getCoordMainPin = function (x, y) {
 
 // вызов функции записи координат главной метки в поле адреса при событии mouseup
 mainPin.addEventListener('mouseup', function () {
-  getCoordMainPin(mainPinX, mainPinY);
+  getCoordMainPin(startCoordsMainPin.x, startCoordsMainPin.y);
 });
 
 
@@ -257,3 +254,49 @@ var selectNumberRoom = function (room, capacity) {
 roomNumberSelect.addEventListener('change', function () {
   selectNumberRoom(roomNumberSelect, capacityOptions);
 });
+
+
+// module5-task1
+
+
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.offsetTop,
+    y: evt.offsetLeft
+  };
+
+  var onMouseMove = function (moveEvt) {
+
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
+    mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    activateMap();
+    getCoordMainPin(mainPin.style.left, mainPin.style.top);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+// console.log();
